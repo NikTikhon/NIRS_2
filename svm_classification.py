@@ -1,6 +1,6 @@
 import pandas as pd
 import joblib
-from classification.SVM import optimize_hyperparams, classify, print_confusion_matrix
+from classification.SVM import optimize_hyperparams, classify
 
 
 # Read features and labels from CSV
@@ -21,7 +21,7 @@ best_estimator, opt_params = optimize_hyperparams(X, y, params=hyper_params)
 joblib.dump(best_estimator, classifier_file_path)
 
 classify(X, y, opt_params)
-print_confusion_matrix(X, y, opt_params)
+# print_confusion_matrix(X, y, opt_params)
 
 
 
