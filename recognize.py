@@ -44,10 +44,10 @@ class RecognizeSpeaker:
         return pred_class, preds[pred_class]
 
 
-def detect(image_path):
+def detect(audio_path):
     td = RecognizeSpeaker()
-    pred_class, score = td.detect(image_path)
-    list_classes = os.listdir(r'F:\gavno')
+    pred_class, score = td.detect(audio_path)
+    list_classes = os.listdir(r'F:\data_set')
     return list_classes[pred_class], score
 
 
@@ -55,9 +55,9 @@ def detect(image_path):
 if __name__=='__main__':
     if MODE == 'DEBUG':
         #calculate_threshold()
-        images_path_dir = 'F:\\test'
-        for image_name in os.listdir(images_path_dir):
-            image_path = os.path.join(images_path_dir, image_name)
-            pred_class, score = detect(image_path)
-            print(f'Audio_path: {image_path}, predicted_class - {pred_class}, score - {score}')
+        audio_path_dir = 'F:\\test'
+        for audio_name in os.listdir(audio_path_dir):
+            audio_path = os.path.join(audio_path_dir, audio_name)
+            pred_class, score = detect(audio_path)
+            print(f'Audio_path: {audio_path}, predicted_class - {pred_class}, score - {score}')
 
