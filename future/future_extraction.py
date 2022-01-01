@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import torch
 import torchaudio
@@ -25,7 +27,7 @@ def get_audios_and_labels(audios_path):
     return audios
 
 
-def create_feature_vectors(model, device, data_path, output_name):
+def create_feature_vectors(model, device, data_path, output_name, v_len):
     df = pd.DataFrame()
     audios = get_audios_and_labels(data_path)
     c = 1
@@ -47,12 +49,13 @@ def create_feature_vectors(model, device, data_path, output_name):
 
     # save the feature vector to csv
     final_df = df.T
-    final_df.columns = get_df_column_names()
+    final_df.columns = get_df_column_names(v_len)
     final_df.to_csv(output_name, index=False)  # csv type [im_name][label][f1,f2,...,fK]
 
 
 def get_yi_record(model, device, audio):
-    list_slice = [audio[:, i*SAMPLE_RATE: i*SAMPLE_RATE + SAMPLE_RATE] for i in range(int(audio.size()[1] / SAMPLE_RATE))]
+    sample_rate_record = 16384
+    list_slice = [audio[:, i*sample_rate_record: i*sample_rate_record + sample_rate_record] for i in range(math.ceil(audio.size()[1] / sample_rate_record))]
     future_list = []
     for part in list_slice:
         audio_part = torch.fft.fft(part, 16000)[0].reshape((1, 16000))
@@ -68,12 +71,12 @@ def get_yi_record(model, device, audio):
 
 
 
-def get_df_column_names():
+def get_df_column_names(v_len):
     """
     Rename the feature csv column names as [im_names][labels][f1,f2,...,fK].
     :returns: The column names
     """
     names = ["audio_names", "labels"]
-    for i in range(128):
+    for i in range(v_len):
         names.append("f" + str(i + 1))
     return names

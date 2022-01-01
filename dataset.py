@@ -9,6 +9,7 @@ from typing import Any, Callable, cast, Dict, List, Optional, Tuple
 import glob
 import torch.nn.functional as F
 import torch.fft
+import numpy as np
 
 torchaudio.backend.set_audio_backend(backend='soundfile')
 
@@ -24,7 +25,7 @@ class CustomDataset(Dataset):
                 self.data.append([img_path, class_name])
         # print(self.data)
         self.class_map = os.listdir(self.imgs_path)
-        self.img_dim = (416, 416)
+
 
     def __len__(self):
         return len(self.data)

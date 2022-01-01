@@ -4,6 +4,7 @@ import torch
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
+
 import torch.onnx
 import argparse
 from dataset import CustomDataset
@@ -69,9 +70,13 @@ class Net(nn.Module):
         self.res4 = ResudualBlock_2(64, 128)
         self.res5 = ResudualBlock_2(128, 128)
         self.avg_pool = torch.nn.AvgPool1d(kernel_size=3, stride=3)
-        self.fc1 = torch.nn.Linear(10624, 256)
-        self.fc2 = torch.nn.Linear(256, 128)
-        self.fc3 = torch.nn.Linear(128, 49)
+        # self.fc1 = torch.nn.Linear(10624, 128)
+        # self.fc3 = torch.nn.Linear(128, 72)
+
+
+        self.fc1 = torch.nn.Linear(10624, 400)
+        self.fc3 = torch.nn.Linear(400, 72)
+
 
     def forward(self, x):
         x = self.res1(x)
@@ -83,9 +88,8 @@ class Net(nn.Module):
         x = torch.flatten(x, 1)
         x = self.fc1(x)
         x = F.relu(x)
-        x = self.fc2(x)
         if self.training:
-            x = F.relu(x)
+            x = self.drop(x)
             x = self.fc3(x)
             x = F.log_softmax(x, dim=1)
         return x
@@ -105,8 +109,10 @@ def train_loop(dataloader, model, loss_fn, optimizer, device):
         loss = loss_fn(pred, y)
 
 
+
         optimizer.zero_grad()
         loss.backward()
+        print([x.grad for x in model.parameters()])
         optimizer.step()
         loss_out += loss.item()
         if batch % 100 == 0:
@@ -135,7 +141,7 @@ def test_loop(dataloader, model, loss_fn, device):
 
 def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    path_dataset = r'E:\16000_pcm_speeches_2\audio\\'
+    path_dataset = r'E:\train\\'
     dataset = CustomDataset(path_dataset)
     train_size = int(0.9 * len(dataset))
     val_size = len(dataset) - train_size
@@ -149,7 +155,7 @@ def main():
         print(f"Epoch {t + 1}\n-------------------------------")
         train_loop(train_loader, net, criterion, optimizer, device)
         test_loop(testloader, net, criterion, device)
-        torch.save(net.state_dict(), 'ResNet_weights\model_weights' + str(t + 1) + '.pth')
+        torch.save(net.state_dict(), r'E:\Programs\PycharmProjects\NIRS_2\ResNet_weights\model_weights' + str(t + 1) + '.pth')
 
 
 if __name__ == '__main__':
